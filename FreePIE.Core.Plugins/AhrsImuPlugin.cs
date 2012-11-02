@@ -48,6 +48,10 @@ namespace FreePIE.Core.Plugins
             buffer = new byte[4];
         }
 
+        protected override void Stop(SerialPort serialPort)
+        {
+        }
+
         protected override void Read(SerialPort serialPort)
         {
             while (serialPort.BytesToRead >= 12)

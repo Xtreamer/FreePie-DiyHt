@@ -10,25 +10,33 @@ using FreePIE.Core.Contracts;
 
 namespace FreePIE.Core.Plugins
 {
-    [LuaGlobalType(Type = typeof(FreeImuGlobal))]
-    public class FreeImuPlugin : ComDevicePlugin
+    [LuaGlobalType(Type = typeof(DiyHtGlobal))]
+    public class DiyHtPlugin : ComDevicePlugin
     {
         public override object CreateGlobal()
         {
-            return new FreeImuGlobal(this);
+            return new DiyHtGlobal(this);
         }
 
         protected override int DefaultBaudRate
         {
-            get { return 115200; }
+            get { return 57600; }
         }
 
         protected override void Init(SerialPort serialPort)
         {
+            SendCommand(serialPort, "$PLST");
         }
 
         protected override void Stop(SerialPort serialPort)
+        {            
+            SendCommand(serialPort, "$PLEN");
+        }
+
+        private static void SendCommand(SerialPort serialPort, string command)
         {
+            char[] buffer = command.ToCharArray(0, command.Length);
+            serialPort.Write(buffer, 0, command.Length);
         }
 
         protected override void Read(SerialPort serialPort)
@@ -40,9 +48,10 @@ namespace FreePIE.Core.Plugins
             if (values.Length != 3)
                 return;
 
-            data.Yaw = ParseFloat(values[0]);
-            data.Pitch = ParseFloat(values[1]);
-            data.Roll = ParseFloat(values[2]);
+            data.Roll = ParseFloat(values[0]);
+            data.Pitch = ParseFloat(values[1]);            
+            data.Yaw = ParseFloat(values[2]);
+
             Data = data;
             newData = true;
         }
@@ -54,18 +63,18 @@ namespace FreePIE.Core.Plugins
 
         protected override string BaudRateHelpText
         {
-            get { return "Baud rate, default for the FreeImu library should be 115200"; }
+            get { return "Baud rate, default for the DiyHt library should be 57600"; }
         }
-        
+
         public override string FriendlyName
         {
-            get { return "Free IMU"; }
+            get { return "DIY Headtracker"; }
         }
     }
 
-    [LuaGlobal(Name = "freeImu")]
-    public class FreeImuGlobal : DofGlobal<FreeImuPlugin>
+    [LuaGlobal(Name = "diyHt")]
+    public class DiyHtGlobal : DofGlobal<DiyHtPlugin>
     {
-        public FreeImuGlobal(FreeImuPlugin plugin) : base(plugin) { }
+        public DiyHtGlobal(DiyHtPlugin plugin) : base(plugin) { }
     }
 }

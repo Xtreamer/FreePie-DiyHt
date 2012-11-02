@@ -21,6 +21,7 @@ namespace FreePIE.Core.Plugins
 
         protected abstract void Init(SerialPort serialPort);
         protected abstract void Read(SerialPort serialPort);
+        protected abstract void Stop(SerialPort serialPort);
         protected abstract string BaudRateHelpText { get; }
         protected abstract int DefaultBaudRate { get; }
 
@@ -56,6 +57,7 @@ namespace FreePIE.Core.Plugins
         public override void Stop()
         {
             stopping = true;
+            Stop(serialPort);
             serialPort.Close();
             serialPort.Dispose();
         }
